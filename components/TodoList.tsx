@@ -55,23 +55,24 @@ export default function TodoList({ userId }: TodoListProps) {
     }
   };
 
-  const toggleTodo = async (no: number) => {
-    const todo = todos.find((t: Todo) => t.no === no);
-    if (todo) {
-      await fetch(`/api/todos?id=${no}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ completed: !todo.completed }),
-      });
-      mutate();
-    }
+  const toggleTodo = async (todo: Todo) => {
+    await fetch("/api/todos", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: todo.no, completed: !todo.completed }),
+    });
+    mutate();
   };
 
-  const deleteTodoItem = async (no: number) => {
-    await fetch(`/api/todos?id=${no}`, {
+  const deleteTodoItem = async (todo: Todo) => {
+    await fetch("/api/todos", {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: todo.no }),
     });
     mutate();
   };
@@ -123,12 +124,7 @@ export default function TodoList({ userId }: TodoListProps) {
       </ToggleButtonGroup>
       <List>
         {filteredTodos.map((todo: Todo) => (
-          <ListItem
-            key={todo.no}
-            dense
-            button
-            onClick={() => toggleTodo(todo.no)}
-          >
+          <ListItem key={todo.no} dense button onClick={() => toggleTodo(todo)}>
             <Checkbox
               edge="start"
               checked={todo.completed}
@@ -145,7 +141,7 @@ export default function TodoList({ userId }: TodoListProps) {
               <IconButton
                 edge="end"
                 aria-label="delete"
-                onClick={() => deleteTodoItem(todo.no)}
+                onClick={() => deleteTodoItem(todo)}
               >
                 <DeleteIcon />
               </IconButton>

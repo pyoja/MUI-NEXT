@@ -16,9 +16,27 @@ export default function SignupForm() {
       alert("Passwords don't match");
       return;
     }
-    // TODO: Implement signup logic
-    // If signup successful, redirect to login page
-    router.push("/");
+
+    try {
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, password }),
+      });
+
+      if (response.ok) {
+        alert("Signup successful");
+        router.push("/"); // 로그인 페이지로 리다이렉트
+      } else {
+        const errorData = await response.json();
+        alert(`Signup failed: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error("An error occurred during signup:", error);
+      alert("An error occurred during signup. Please try again.");
+    }
   };
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Typography,
@@ -39,7 +39,7 @@ export default function TodoList({ userId }: TodoListProps) {
     data: todos,
     error,
     mutate,
-  } = useSWR(`/api/todos?userNo=${userId}`, fetcher);
+  } = useSWR(`/api/todos?userId=${userId}`, fetcher);
 
   const addTodo = async () => {
     if (inputValue.trim() !== "") {
@@ -48,7 +48,7 @@ export default function TodoList({ userId }: TodoListProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: inputValue, userNo: Number(userId) }),
+        body: JSON.stringify({ text: inputValue, userId }),
       });
       setInputValue("");
       mutate();
@@ -58,7 +58,7 @@ export default function TodoList({ userId }: TodoListProps) {
   const toggleTodo = async (no: number) => {
     const todo = todos.find((t: Todo) => t.no === no);
     if (todo) {
-      await fetch(`/api/todos/${no}`, {
+      await fetch(`/api/todos?id=${no}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +70,7 @@ export default function TodoList({ userId }: TodoListProps) {
   };
 
   const deleteTodoItem = async (no: number) => {
-    await fetch(`/api/todos/${no}`, {
+    await fetch(`/api/todos?id=${no}`, {
       method: "DELETE",
     });
     mutate();

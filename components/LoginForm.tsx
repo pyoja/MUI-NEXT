@@ -3,32 +3,48 @@
 import React, { useState } from "react";
 import { TextField, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { authenticate, generateToken } from "../lib/auth";
 
 export default function LoginForm() {
-  const [username, setUsername] = useState("");
+  const [id, setId] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = await authenticate(username, password);
-    if (user) {
-      const token = await generateToken(user.id);
-      // 토큰을 로컬 스토리지나 쿠키에 저장
-      localStorage.setItem("token", token);
-      router.push("/dashboard");
-    } else {
-      // 로그인 실패 처리
+    setError("");
+
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.userId);
+        console.log("Login successful, redirecting to dashboard...");
+        router.push("/dashboard");
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || "Login failed");
+      }
+    } catch (error) {
+      console.error("An error occurred during login:", error);
+      setError("An error occurred during login. Please try again.");
     }
   };
 
   return (
     <form onSubmit={handleLogin}>
       <TextField
-        label="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        label="ID"
+        value={id}
+        onChange={(e) => setId(e.target.value)}
         fullWidth
         margin="normal"
       />
@@ -40,6 +56,7 @@ export default function LoginForm() {
         fullWidth
         margin="normal"
       />
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <Button type="submit" variant="contained" color="primary">
         Login
       </Button>

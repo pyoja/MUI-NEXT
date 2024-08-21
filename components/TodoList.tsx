@@ -17,49 +17,51 @@ import {
   ToggleButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { getTodosByUser, createTodo, updateTodo, deleteTodo } from "../lib/db";
 
 interface Todo {
-  id: number;
+  no: number;
   text: string;
   completed: boolean;
 }
 
-export default function TodoList() {
+interface TodoListProps {
+  userId: string;
+}
+
+export default function TodoList({ userId }: TodoListProps) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    const storedTodos = localStorage.getItem("todos");
-    if (storedTodos) {
-      setTodos(JSON.parse(storedTodos));
-    }
-  }, []);
+    fetchTodos();
+  }, [userId]);
 
-  useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
+  const fetchTodos = async () => {
+    const fetchedTodos = await getTodosByUser(Number(userId));
+    setTodos(fetchedTodos);
+  };
 
-  const addTodo = () => {
+  const addTodo = async () => {
     if (inputValue.trim() !== "") {
-      setTodos([
-        ...todos,
-        { id: Date.now(), text: inputValue, completed: false },
-      ]);
+      await createTodo(inputValue, Number(userId));
       setInputValue("");
+      fetchTodos();
     }
   };
 
-  const toggleTodo = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+  const toggleTodo = async (no: number) => {
+    const todo = todos.find((t) => t.no === no);
+    if (todo) {
+      await updateTodo(no, !todo.completed);
+      fetchTodos();
+    }
   };
 
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+  const deleteTodoItem = async (no: number) => {
+    await deleteTodo(no);
+    fetchTodos();
   };
 
   const filteredTodos = todos.filter((todo) => {
@@ -89,7 +91,7 @@ export default function TodoList() {
       <ToggleButtonGroup
         value={filter}
         exclusive
-        onChange={(e, newFilter) => setFilter(newFilter)}
+        onChange={(e, newFilter) => setFilter(newFilter || "all")}
         aria-label="text alignment"
       >
         <ToggleButton value="all" aria-label="all">
@@ -105,10 +107,10 @@ export default function TodoList() {
       <List>
         {filteredTodos.map((todo) => (
           <ListItem
-            key={todo.id}
+            key={todo.no}
             dense
             button
-            onClick={() => toggleTodo(todo.id)}
+            onClick={() => toggleTodo(todo.no)}
           >
             <Checkbox
               edge="start"
@@ -126,7 +128,7 @@ export default function TodoList() {
               <IconButton
                 edge="end"
                 aria-label="delete"
-                onClick={() => deleteTodo(todo.id)}
+                onClick={() => deleteTodoItem(todo.no)}
               >
                 <DeleteIcon />
               </IconButton>

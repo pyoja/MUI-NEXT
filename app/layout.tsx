@@ -9,7 +9,7 @@ import createCache from "@emotion/cache";
 import { useServerInsertedHTML } from "next/navigation";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import theme from "./theme";
+import theme from "../theme/theme";
 
 const cache = createCache({ key: "css", prepend: true });
 

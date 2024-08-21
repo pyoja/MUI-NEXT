@@ -17,7 +17,7 @@ import {
   ToggleButton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { getTodosByUser, createTodo, updateTodo, deleteTodo } from "../lib/db";
+import useSWR from "swr";
 
 interface Todo {
   no: number;
@@ -29,46 +29,63 @@ interface TodoListProps {
   userId: string;
 }
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function TodoList({ userId }: TodoListProps) {
-  const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [filter, setFilter] = useState("all");
 
-  useEffect(() => {
-    fetchTodos();
-  }, [userId]);
-
-  const fetchTodos = async () => {
-    const fetchedTodos = await getTodosByUser(Number(userId));
-    setTodos(fetchedTodos);
-  };
+  const {
+    data: todos,
+    error,
+    mutate,
+  } = useSWR(`/api/todos?userNo=${userId}`, fetcher);
 
   const addTodo = async () => {
     if (inputValue.trim() !== "") {
-      await createTodo(inputValue, Number(userId));
+      await fetch("/api/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: inputValue, userNo: Number(userId) }),
+      });
       setInputValue("");
-      fetchTodos();
+      mutate();
     }
   };
 
   const toggleTodo = async (no: number) => {
-    const todo = todos.find((t) => t.no === no);
+    const todo = todos.find((t: Todo) => t.no === no);
     if (todo) {
-      await updateTodo(no, !todo.completed);
-      fetchTodos();
+      await fetch(`/api/todos/${no}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ completed: !todo.completed }),
+      });
+      mutate();
     }
   };
 
   const deleteTodoItem = async (no: number) => {
-    await deleteTodo(no);
-    fetchTodos();
+    await fetch(`/api/todos/${no}`, {
+      method: "DELETE",
+    });
+    mutate();
   };
 
-  const filteredTodos = todos.filter((todo) => {
-    if (filter === "completed") return todo.completed;
-    if (filter === "active") return !todo.completed;
-    return true;
-  });
+  const filteredTodos = Array.isArray(todos)
+    ? todos.filter((todo: Todo) => {
+        if (filter === "completed") return todo.completed;
+        if (filter === "active") return !todo.completed;
+        return true;
+      })
+    : [];
+
+  if (error) return <div>Failed to load</div>;
+  if (!todos) return <div>Loading...</div>;
 
   return (
     <Container maxWidth="sm">
@@ -105,7 +122,7 @@ export default function TodoList({ userId }: TodoListProps) {
         </ToggleButton>
       </ToggleButtonGroup>
       <List>
-        {filteredTodos.map((todo) => (
+        {filteredTodos.map((todo: Todo) => (
           <ListItem
             key={todo.no}
             dense

@@ -1,7 +1,6 @@
 "use client";
-
 import React, { useState } from "react";
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, Box, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import SignupModal from "./SignupModal";
 
@@ -12,10 +11,9 @@ export default function LoginForm() {
   const [signupModalOpen, setSignupModalOpen] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // 기본 폼 제출 동작을 막습니다.
     setError("");
-
     try {
       const response = await fetch("/api/login", {
         method: "POST",
@@ -24,7 +22,6 @@ export default function LoginForm() {
         },
         body: JSON.stringify({ id, password }),
       });
-
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.token);
@@ -43,30 +40,56 @@ export default function LoginForm() {
 
   return (
     <>
-      <form onSubmit={handleLogin}>
+      <Box
+        component="form"
+        onSubmit={handleLogin}
+        noValidate
+        sx={{
+          mt: 1,
+          width: "100%",
+        }}
+      >
         <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="id"
           label="ID"
+          name="id"
+          autoComplete="id"
+          autoFocus
           value={id}
           onChange={(e) => setId(e.target.value)}
-          fullWidth
-          margin="normal"
         />
         <TextField
+          margin="normal"
+          required
+          fullWidth
+          name="password"
           label="Password"
           type="password"
+          id="password"
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          fullWidth
-          margin="normal"
         />
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <Button type="submit" variant="contained" color="primary">
+        {error && <Typography color="error">{error}</Typography>}
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          sx={{ mt: 3, mb: 2 }}
+        >
           Login
         </Button>
-        <Button onClick={() => setSignupModalOpen(true)} variant="text">
+        <Button
+          fullWidth
+          onClick={() => setSignupModalOpen(true)}
+          variant="text"
+        >
           Sign Up
         </Button>
-      </form>
+      </Box>
       <SignupModal
         open={signupModalOpen}
         onClose={() => setSignupModalOpen(false)}

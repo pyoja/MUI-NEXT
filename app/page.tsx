@@ -2,6 +2,11 @@
 
 import React from "react";
 import LoginForm from "../components/LoginForm";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "TODO LIST",
+};
 
 export default function Home() {
   return (

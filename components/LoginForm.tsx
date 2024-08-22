@@ -3,11 +3,13 @@
 import React, { useState } from "react";
 import { TextField, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
+import SignupModal from "./SignupModal";
 
 export default function LoginForm() {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [signupModalOpen, setSignupModalOpen] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -40,29 +42,35 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <TextField
-        label="ID"
-        value={id}
-        onChange={(e) => setId(e.target.value)}
-        fullWidth
-        margin="normal"
+    <>
+      <form onSubmit={handleLogin}>
+        <TextField
+          label="ID"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+          margin="normal"
+        />
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <Button type="submit" variant="contained" color="primary">
+          Login
+        </Button>
+        <Button onClick={() => setSignupModalOpen(true)} variant="text">
+          Sign Up
+        </Button>
+      </form>
+      <SignupModal
+        open={signupModalOpen}
+        onClose={() => setSignupModalOpen(false)}
       />
-      <TextField
-        label="Password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        fullWidth
-        margin="normal"
-      />
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <Button type="submit" variant="contained" color="primary">
-        Login
-      </Button>
-      <Button onClick={() => router.push("/signup")} variant="text">
-        Sign Up
-      </Button>
-    </form>
+    </>
   );
 }

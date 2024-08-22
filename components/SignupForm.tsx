@@ -4,7 +4,11 @@ import React, { useState } from "react";
 import { TextField, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 
-export default function SignupForm() {
+interface SignupFormProps {
+  onSignupSuccess: () => void;
+}
+
+export default function SignupForm({ onSignupSuccess }: SignupFormProps) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,7 +32,7 @@ export default function SignupForm() {
 
       if (response.ok) {
         alert("Signup successful");
-        router.push("/"); // 로그인 페이지로 리다이렉트
+        onSignupSuccess();
       } else {
         const errorData = await response.json();
         alert(`Signup failed: ${errorData.error}`);

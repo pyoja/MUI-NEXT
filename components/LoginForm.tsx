@@ -12,7 +12,7 @@ export default function LoginForm() {
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // 기본 폼 제출 동작을 막습니다.
+    e.preventDefault();
     setError("");
     try {
       const response = await fetch("/api/login", {
@@ -26,7 +26,6 @@ export default function LoginForm() {
         const data = await response.json();
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.userId);
-        console.log("Login successful, redirecting to dashboard...");
         router.push("/dashboard");
       } else {
         const errorData = await response.json();

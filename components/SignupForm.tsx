@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { TextField, Button } from "@mui/material";
-import { useRouter } from "next/navigation";
 
 interface SignupFormProps {
   onSignupSuccess: () => void;
@@ -12,7 +11,6 @@ export default function SignupForm({ onSignupSuccess }: SignupFormProps) {
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();

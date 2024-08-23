@@ -21,7 +21,7 @@ export default function Dashboard() {
   }, [router]);
 
   if (!userId) {
-    return <div>Loading...</div>; // or any other loading indicator
+    return <div>Loading...</div>;
   }
 
   return (

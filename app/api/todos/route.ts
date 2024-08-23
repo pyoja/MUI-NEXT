@@ -74,11 +74,8 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   const { id, completed } = await req.json();
 
-  if (typeof id !== "number") {
-    return NextResponse.json(
-      { error: "Todo ID is required and must be a number" },
-      { status: 400 }
-    );
+  if (!id) {
+    return NextResponse.json({ error: "Todo ID is required" }, { status: 400 });
   }
 
   if (typeof completed !== "boolean") {
@@ -105,11 +102,8 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const { id } = await req.json();
 
-  if (typeof id !== "number") {
-    return NextResponse.json(
-      { error: "Todo ID is required and must be a number" },
-      { status: 400 }
-    );
+  if (!id) {
+    return NextResponse.json({ error: "Todo ID is required" }, { status: 400 });
   }
 
   try {

@@ -100,7 +100,7 @@ export default function TodoList({ userId }: TodoListProps) {
           placeholder="Add a new todo"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && addTodo()}
+          onKeyDown={(e) => e.key === "Enter" && addTodo()}
         />
         <Button variant="contained" onClick={addTodo} sx={{ mt: 1 }}>
           Add Todo
